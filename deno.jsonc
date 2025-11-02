@@ -1,0 +1,58 @@
+{
+	"tasks": {
+		"dev": "deno run -A --node-modules-dir npm:vite -d",
+		"build": "deno run -A --node-modules-dir npm:vite build",
+		"preview": "deno run -A --node-modules-dir npm:vite preview"
+	},
+	"imports": {
+		"@fontsource-variable/libre-franklin": "npm:@fontsource-variable/libre-franklin@^5.2.8",
+		"@fontsource-variable/mozilla-headline": "npm:@fontsource-variable/mozilla-headline@^5.2.2",
+		"classix": "npm:classix@^2.2.4",
+		"destyle.css": "npm:destyle.css@^4.0.1",
+		"html-minifier-terser": "npm:html-minifier-terser@^7.2.0",
+		"lightningcss": "npm:lightningcss@^1.30.2",
+		"solid-js": "npm:solid-js@^1.9.9",
+		"terser": "npm:terser@^5.44.0",
+		"unocss": "npm:unocss@^66.5.4",
+		"vite": "npm:vite@^7.1.12",
+		"vite-plugin-solid": "npm:vite-plugin-solid@^2.11.9"
+	},
+	"compilerOptions": {
+		"lib": ["DOM", "DOM.Iterable", "ESNext", "deno.window"],
+		"jsx": "react-jsx",
+		"jsxImportSource": "solid-js",
+		"types": ["vite/client"],
+		"noErrorTruncation": true,
+
+		// https://github.com/tsconfig/bases/blob/ebe629c/bases/strictest.json#L3-L13
+		"strict": true,
+		"allowUnusedLabels": false,
+		"allowUnreachableCode": false,
+		"exactOptionalPropertyTypes": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true
+	},
+	"lint": {
+		"rules": {
+			"exclude": ["jsx-key", "no-explicit-any"]
+		},
+		"exclude": [
+			"dist"
+		]
+	},
+	"fmt": {
+		"lineWidth": 120,
+		"useTabs": true,
+		"semiColons": false,
+		"trailingCommas": "never",
+		"exclude": [
+			"dist",
+			"index.html"
+		]
+	}
+}

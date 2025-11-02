@@ -1,0 +1,70 @@
+import {
+	defineConfig,
+	presetWind3,
+	transformerCompileClass,
+	transformerDirectives,
+	transformerVariantGroup
+} from "unocss"
+
+export default defineConfig({
+	presets: [
+		presetWind3({
+			dark: "media",
+			preflight: false
+		})
+	],
+	transformers: [
+		transformerVariantGroup(),
+		transformerDirectives(),
+		transformerCompileClass({
+			classPrefix: "_",
+			alwaysHash: true
+		})
+	],
+	rules: [
+		["bg-present-stripe", {
+			"background-image":
+				"repeating-linear-gradient(135deg, oklch(0.667 0.177 91.0), oklch(0.667 0.177 91.0) 20%, oklch(0.725 0.187 91.0) 20% 40%)",
+			"-webkit-text-stroke": "min(0.35em,0.625rem) oklch(0.667 0.177 91.0)",
+			"paint-order": "stroke fill"
+		}]
+	],
+	theme: {
+		colors: {
+			neutral: {
+				50: "oklch(98.5% 0 0)",
+				100: "oklch(97% 0 0)",
+				200: "oklch(92.2% 0 0)",
+				300: "oklch(87% 0 0)",
+				400: "oklch(70.8% 0 0)",
+				500: "oklch(55.6% 0 0)",
+				600: "oklch(43.9% 0 0)",
+				700: "oklch(37.1% 0 0)",
+				800: "oklch(26.9% 0 0)",
+				900: "oklch(20.5% 0 0)",
+				950: "oklch(14.5% 0 0)"
+			},
+			stone: {
+				50: "oklch(98.5% 0.001 106.423)",
+				100: "oklch(97% 0.001 106.424)",
+				200: "oklch(92.3% 0.003 48.717)",
+				300: "oklch(86.9% 0.005 56.366)",
+				400: "oklch(70.9% 0.01 56.259)",
+				500: "oklch(55.3% 0.013 58.071)",
+				600: "oklch(44.4% 0.011 73.639)",
+				700: "oklch(37.4% 0.01 67.558)",
+				800: "oklch(26.8% 0.007 34.298)",
+				900: "oklch(21.6% 0.006 56.043)",
+				950: "oklch(14.7% 0.004 49.25)"
+			}
+		},
+		easing: {
+			"DEFAULT": "cubic-bezier(0.65, 0, 0.35, 1)"
+		},
+		media: {
+			high_contrast: "(prefers-contrast: more)",
+			contrast_no_preference: "not (prefers-contrast: more)"
+		}
+	},
+	preflights: [{ getCSS: () => "" }]
+})
