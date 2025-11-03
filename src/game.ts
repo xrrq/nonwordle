@@ -1,46 +1,66 @@
 import { createSignal } from "solid-js"
 
-import { savedBoard, updateDatanase } from "./database.ts"
-import { confetti } from "./confetti.tsx"
+import { savedBoard, updateDatabase } from "./database.ts"
+import { createArrayOfLength } from "./utils.ts"
 import { acceptableWords, answer } from "./words.ts"
 import { toast } from "./components/Toast.tsx"
 import * as i18n from "./i18n.ts"
+import { confetti } from "./confetti.tsx"
 
+// board dimensions
 export const ROWS = 7
 export const COLUMNS = 5
 
+// tile states
 export const CORRECT = import.meta.env.DEV ? Symbol("CORRECT") : Symbol()
 export const PRESENT = import.meta.env.DEV ? Symbol("PRESENT") : Symbol()
 export const ABSENT = import.meta.env.DEV ? Symbol("ABSENT") : Symbol()
 
 type CharState = typeof CORRECT | typeof PRESENT | typeof ABSENT
 
-// list of 5-character strings, separated by newlines
+// current board as a string separated by newlines
 export const [getBoard, setBoard] = createSignal<string>(savedBoard ?? "")
-export const [getTileStates, setTileStates] = createSignal<CharState[][]>(
-	Array(ROWS).fill(undefined).map(() => Array(COLUMNS)),
-	{ equals: false }
-)
-export const [getKeyboardColors, setKeyboardColors] = createSignal<Record<string, CharState>>({}, { equals: false })
 
-export const [isSolved, setSolved] = createSignal(false)
-
+// returns an array of strings, each representing a row on the board
 export const getRows = () => {
 	const board = getBoard()
 	return board !== "" ? board.trimEnd().split("\n") : []
 }
 
+// 2D array of tile states
+export const [getTileStates, setTileStates] = createSignal<CharState[][]>(
+	createArrayOfLength(ROWS, () => createArrayOfLength(COLUMNS)),
+	{ equals: false }
+)
+
+// map from character to its highest-known state
+export const [getKeyboardColors, setKeyboardColors] = createSignal<Record<string, CharState>>({}, { equals: false })
+
+// whether the game has been solved
+export const [isSolved, setSolved] = createSignal(false)
+
+/**
+ * @returns whether the game has ended
+ */
 export const hasGameEnded = () => isSolved() || getBoard().length >= (COLUMNS + 1) * ROWS
 
 function unreachable(): never {
 	throw new Error("unreachable")
 }
 
-async function guess(guess: string, rowIndex: number, fast = false) {
+/**
+ * Process a guess and update the board and keyboard states
+ *
+ * @param guess the guessed word
+ * @param guessRowIndex the row index of the guess
+ * @param fast whether to use fast mode (less delays)
+ */
+async function guess(guess: string, guessRowIndex: number, fast = false): Promise<void> {
 	const answerArray = answer.split("")
 	const tileStateArray = Array<CharState>(COLUMNS)
-	const keyboardColors = { ...getKeyboardColors() }
+	const keyboardColors = {} as Record<string, CharState>
 
+	// first pass: correct letters
 	for (let index = 0; index < COLUMNS; ++index) {
 		const guessedLetter = guess[index] ?? unreachable()
 		const correctLetter = answerArray[index]
@@ -53,6 +73,7 @@ async function guess(guess: string, rowIndex: number, fast = false) {
 		}
 	}
 
+	// second pass: present letters
 	for (let index = 0; index < COLUMNS; ++index) {
 		const guessedLetter = guess[index] ?? unreachable()
 		const answerLetterIndex = answerArray.indexOf(guessedLetter)
@@ -65,6 +86,7 @@ async function guess(guess: string, rowIndex: number, fast = false) {
 		}
 	}
 
+	// third pass: absent letters
 	for (let index = 0; index < COLUMNS; ++index) {
 		if (tileStateArray[index] == null) {
 			tileStateArray[index] = ABSENT
@@ -74,56 +96,66 @@ async function guess(guess: string, rowIndex: number, fast = false) {
 		}
 	}
 
+	// reveal animation
+
+	// if fast is true, skip delays
+	const notFast = +!fast
+
 	for (let index = 0; index < COLUMNS; ++index) {
 		const char = guess[index] ?? unreachable()
 
-		if (fast) {
-			setTimeout(
-				() =>
-					setTileStates((table) => (
-						(table[rowIndex] ?? unreachable())[index] = tileStateArray[index] ?? unreachable(), table
-					)),
-				75 * (index + rowIndex)
-			)
-			setTimeout(
-				() => setKeyboardColors((map) => (map[char] = keyboardColors[char] ?? unreachable(), map)),
-				75 * (index + rowIndex) + 500
-			)
-		} else {
-			setTileStates((table) => (
-				(table[rowIndex] ?? unreachable())[index] = tileStateArray[index] ?? unreachable(), table
-			))
+		// update tile state
+		setTimeout(
+			() =>
+				setTileStates((table) => {
+					;(table[guessRowIndex] ?? unreachable())[index] = tileStateArray[index] ?? unreachable()
+
+					return table
+				}),
+			(75 * (index + guessRowIndex)) * (fast as unknown as number)
+		)
+
+		if (notFast) {
 			await new Promise((resolve) => setTimeout(resolve, 500))
-			setKeyboardColors((map) => (map[char] = keyboardColors[char] ?? unreachable(), map))
 		}
+
+		// update keyboard colors
+		setTimeout(
+			() =>
+				setKeyboardColors((map) => {
+					if (map[char] !== CORRECT) {
+						map[char] = keyboardColors[char] ?? unreachable()
+					}
+
+					return map
+				}),
+			(75 * (index + guessRowIndex) + 500) * (fast as unknown as number)
+		)
 	}
 
+	// results
+
+	// correct guess
 	if (guess === answer) {
 		setSolved(true)
 
-		if (fast) {
-			setTimeout(
-				() => confetti(),
-				100 * rowIndex + 1000
-			)
-		} else {
-			setTimeout(() => {
-				toast(i18n.messages[rowIndex] ?? unreachable(), 5000)
-				confetti()
-			}, 500)
-		}
-	} else if (hasGameEnded()) {
-		if (fast) {
-			toast(answer, Infinity)
-		} else {
-			setTimeout(() => {
-				toast(answer, Infinity)
-			}, 500)
-		}
+		setTimeout(() => {
+			if (notFast) {
+				toast(i18n.messages[guessRowIndex] ?? unreachable(), 5000)
+			}
+
+			confetti()
+		}, fast ? 100 * guessRowIndex + 1000 : 500)
+	} // last row and not solved
+	else if (hasGameEnded()) {
+		setTimeout(() => toast(answer, Infinity), 500 * notFast)
 	}
 }
 
-export function initiate() {
+/**
+ * Fill the board with the saved game state
+ */
+export function initiate(): void {
 	const rows = getRows()
 	const length = rows.length
 
@@ -133,7 +165,13 @@ export function initiate() {
 	}
 }
 
-export function pressKey(key: string) {
+/**
+ * Try to add a character to the board
+ *
+ * @param key the character to add
+ */
+export function addCharacterToBoard(key: string): void {
+	// cannot add more letters to a full row
 	if (hasGameEnded() || getBoard().length % (COLUMNS + 1) >= COLUMNS) {
 		return
 	}
@@ -141,7 +179,11 @@ export function pressKey(key: string) {
 	setBoard((board) => board + key)
 }
 
-export function backspace() {
+/**
+ * Try to remove the last character from the board
+ */
+export function backspace(): void {
+	// cannot delete newline
 	if (hasGameEnded() || getBoard().length % (COLUMNS + 1) === 0) {
 		return
 	}
@@ -149,13 +191,17 @@ export function backspace() {
 	setBoard((board) => board.slice(0, -1))
 }
 
-export async function enter() {
+/**
+ * Try to enter the current row as a guess
+ */
+export async function enter(): Promise<void> {
 	const currentBoard = getBoard()
 
 	if (hasGameEnded()) {
 		return
 	}
 
+	// incomplete row
 	if (currentBoard.length % (COLUMNS + 1) !== COLUMNS) {
 		toast(i18n.notEnoughLetters)
 		return
@@ -163,21 +209,24 @@ export async function enter() {
 
 	const word = currentBoard.slice(-5)
 
+	// word not in list
 	if (!acceptableWords.has(word)) {
 		toast(i18n.notInWordList)
 		return
 	}
 
 	setBoard((board) => board + "\n")
-	updateDatanase(getBoard())
 
-	const rowIndex = getBoard().length / (COLUMNS + 1) - 1
-	await guess(word, rowIndex)
+	updateDatabase(getBoard())
+
+	const currentRowIndex = getBoard().length / (COLUMNS + 1) - 1
+	await guess(word, currentRowIndex)
 }
 
-addEventListener("keydown", ({ key }) => {
+// keyboard input handling
+addEventListener("keydown", ({ key }): void => {
 	if (/^[A-Za-z]$/.test(key)) {
-		pressKey(key.toUpperCase())
+		addCharacterToBoard(key.toUpperCase())
 	} else if (key === "Backspace") {
 		backspace()
 	} else if (key === "Enter") {

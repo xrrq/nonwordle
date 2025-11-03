@@ -2,7 +2,11 @@ import { type Component } from "solid-js"
 import { cx } from "classix"
 
 import { ABSENT, COLUMNS, CORRECT, getBoard, getTileStates, PRESENT, ROWS } from "../game.ts"
+import { createArrayOfLength } from "../utils.ts"
 
+/**
+ * Mapping from tile states to their corresponding styles used in GameBoard and Keyboard components
+ */
 export const TileStyle = {
 	[CORRECT]:
 		":uno: text-white/100 bg-[oklch(0.623_0.178_145.0)]/100 media-high_contrast:(text-neutral-950/100 bg-orange-500/100)",
@@ -26,6 +30,7 @@ const Tile: Component<{ row: number; column: number }> = (props) => {
 
 		return cx(
 			styleFromTable,
+			// flip animation
 			`:uno: animate-[flip_1000ms_cubic-bezier(0.45,0,0.55,1)_both] [transform-style:preserve-3d] backface-hidden before:(absolute inset-0 grid place-content-center content-[attr(data-tile)] text-8 font-bold aspect-ratio-square b-(2 neutral-400/100) dark:b-neutral-500/100 bg-white/100 text-neutral-900/100 dark:(bg-stone-950/100 text-neutral-50/100) [rotate:x_180deg] backface-hidden [-webkit-text-stroke:transparent])`
 		)
 	}
@@ -43,18 +48,11 @@ const Tile: Component<{ row: number; column: number }> = (props) => {
 	)
 }
 
-export const GameBoard: Component = () => {
-	const board = new Array(ROWS)
-	for (let row = 0; row < ROWS; ++row) {
-		board[row] = new Array(COLUMNS)
-		for (let column = 0; column < COLUMNS; ++column) {
-			board[row][column] = <Tile row={row} column={column} />
+export const GameBoard: Component = () => (
+	<div class=":uno: max-w-[min(24rem,calc(100svw_-_1rem))] max-h-[min(33.6rem,calc(140svw_-_1.4rem))] grid-(~ cols-5 rows-7 gap-1.5) m-auto aspect-ratio-5/7 flex-1">
+		{
+			// deno-fmt-ignore
+			createArrayOfLength(ROWS, (_, row) => createArrayOfLength(COLUMNS, (_, column) => <Tile row={row} column={column} />)).flat()
 		}
-	}
-
-	return (
-		<div class=":uno: max-w-[min(24rem,calc(100svw_-_1rem))] max-h-[min(33.6rem,calc(140svw_-_1.4rem))] grid-(~ cols-5 rows-7 gap-1.5) m-auto aspect-ratio-5/7 flex-1">
-			{board}
-		</div>
-	)
-}
+	</div>
+)

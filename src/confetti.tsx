@@ -1,7 +1,13 @@
 import { type Component } from "solid-js"
 
+/**
+ * Function to resolve when the canvas is ready
+ */
 let setCanvasReady: () => void
 
+/**
+ * Promise that resolves when the canvas is ready
+ */
 const canvasReady = new Promise<void>((resolve) => {
 	setCanvasReady = resolve
 })
@@ -11,14 +17,19 @@ let canvas!: HTMLCanvasElement
 export const ConfettiCanvas: Component = () => (
 	<canvas
 		class=":uno: fixed inset-0 w-full h-full z-1 pointer-events-none"
-		ref={(el) => {
-			canvas = el
+		ref={(canvasElement) => {
+			canvas = canvasElement
 			setCanvasReady()
 		}}
 		aria-hidden="true"
 	/>
 )
 
+// confetti implementation adapted from https://github.com/catdad/canvas-confetti/blob/51e7932/src/confetti.js
+
+/**
+ * Fetti particle interface
+ */
 interface Fetti {
 	x: number
 	y: number
@@ -29,7 +40,7 @@ interface Fetti {
 	tiltAngle: number
 	color: string
 	shape: number
-	tick: 0
+	tick: number
 	decay: number
 	wobbleX: number
 	wobbleY: number
@@ -42,13 +53,23 @@ interface Options extends Partial<Pick<Fetti, "decay" | "scalar">> {
 }
 
 const COLORS = ["26ccff", "a25afd", "ff5e7e", "88ff5a", "fcff42", "ffa62d", "ff36ff"]
-const TOTAL_TICKS = 200
+
 const GRAVITY = 3
+const TOTAL_TICKS = 200
 const OVAL_SCALAR = 0.6
 
 const fettis = new Set<Fetti>()
 
-function fire(particleCount: number, { spread = 45, startVelocity = 45, decay = 0.9, scalar = 1 }: Options) {
+/**
+ * Fire confetti
+ *
+ * @param particleCount number of particles
+ * @param spread spread angle
+ * @param startVelocity starting velocity
+ * @param decay decay rate
+ * @param scalar size scalar
+ */
+function fire(particleCount: number, { spread = 45, startVelocity = 45, decay = 0.9, scalar = 1 }: Options): void {
 	const x = canvas.width * 0.5
 	const y = canvas.height * 0.9
 	const radAngle = 90 * (Math.PI / 180)
@@ -76,6 +97,9 @@ function fire(particleCount: number, { spread = 45, startVelocity = 45, decay = 
 	}
 }
 
+/**
+ * Resize canvas to fit the screen
+ */
 function resize() {
 	const rect = canvas.getBoundingClientRect()
 	canvas.width = rect.width
@@ -84,14 +108,19 @@ function resize() {
 
 let frame: ReturnType<typeof requestAnimationFrame> | null = null
 
-const MILLISECONDS_PER_FRAME = 1000 / 60
+const MILLISECONDS_PER_FRAME = 1000 / 60 // 60 fps
 let lastFrameTime: DOMHighResTimeStamp
 
-export async function confetti() {
+/**
+ * Trigger confetti animation
+ */
+export async function confetti(): Promise<void> {
+	// respect prefers-reduced-motion setting
 	if (matchMedia("(prefers-reduced-motion)").matches) {
 		return
 	}
 
+	// wait for canvas to be ready
 	await canvasReady
 
 	resize()
@@ -121,13 +150,14 @@ export async function confetti() {
 
 	const context = canvas.getContext("2d")!
 
+	// animation loop
 	const callback: FrameRequestCallback = (time) => {
 		resize()
 
 		context.clearRect(0, 0, canvas.width, canvas.height)
 
-		const deltaMs = time - (lastFrameTime ??= time)
-		const progressFactor = deltaMs / MILLISECONDS_PER_FRAME
+		const Δt = time - (lastFrameTime ??= time)
+		const progressFactor = Δt / MILLISECONDS_PER_FRAME
 		const pf = Math.min(progressFactor, 4)
 
 		for (const fetti of fettis) {

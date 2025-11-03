@@ -1,8 +1,8 @@
 import { type Component } from "solid-js"
 
 import { HowToPlay } from "./components/HowToPlay.tsx"
-import { Header } from "./components/Header.tsx"
 import { Toast } from "./components/Toast.tsx"
+import { Header } from "./components/Header.tsx"
 import { GameBoard } from "./components/GameBoard.tsx"
 import { Keyboard } from "./components/Keyboard.tsx"
 import { ConfettiCanvas } from "./confetti.tsx"

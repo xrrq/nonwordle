@@ -1,6 +1,7 @@
 import en from "./i18n/en.ts"
 import ja from "./i18n/ja.ts"
 
+// available languages
 const languages = { en, ja }
 
 let selectedLanguage

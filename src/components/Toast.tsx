@@ -6,7 +6,19 @@ const [getToastMessage, setToastMessage] = createSignal<string | null>(null)
 
 let timeout1: number, timeout2: number
 
+/**
+ * Show a toast message
+ *
+ * @param message the message to show
+ * @param timeout duration in milliseconds before the toast disappears
+ * @note If timeout is not finite, the toast will stay until the next toast
+ * @note A timeout of `0` or negative value will throw an error
+ */
 export function toast(message: string, timeout = 1000): void {
+	if (timeout <= 0) {
+		throw new Error("timeout must be positive")
+	}
+
 	settoastShown(true)
 	setToastMessage(message)
 	clearTimeout(timeout1)
