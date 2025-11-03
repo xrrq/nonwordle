@@ -99,8 +99,6 @@ async function guess(guess: string, guessRowIndex: number, fast = false): Promis
 	// reveal animation
 
 	// if fast is true, skip delays
-	const notFast = +!fast
-
 	for (let index = 0; index < COLUMNS; ++index) {
 		const char = guess[index] ?? unreachable()
 
@@ -115,7 +113,7 @@ async function guess(guess: string, guessRowIndex: number, fast = false): Promis
 			(75 * (index + guessRowIndex)) * (fast as unknown as number)
 		)
 
-		if (notFast) {
+		if (!fast) {
 			await new Promise((resolve) => setTimeout(resolve, 500))
 		}
 
@@ -140,15 +138,15 @@ async function guess(guess: string, guessRowIndex: number, fast = false): Promis
 		setSolved(true)
 
 		setTimeout(() => {
-			if (notFast) {
+			if (!fast) {
 				toast(i18n.messages[guessRowIndex] ?? unreachable(), 5000)
 			}
 
 			confetti()
 		}, fast ? 100 * guessRowIndex + 1000 : 500)
-	} // last row and not solved
-	else if (hasGameEnded()) {
-		setTimeout(() => toast(answer, Infinity), 500 * notFast)
+	} else if (guessRowIndex === ROWS - 1) {
+		// last row and not solved
+		setTimeout(() => toast(answer, Infinity), fast ? 100 * guessRowIndex + 1500 : 500)
 	}
 }
 
