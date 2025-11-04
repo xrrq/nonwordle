@@ -1,6 +1,9 @@
 // accumulated shared stuffs to avoid circular references of modules
 
-const DAY = 86400000 // in milliseconds
+const SECOND = 1000 // in milliseconds
+const MINUTE = 60 * SECOND
+const HOUR = 60 * MINUTE
+const DAY = 24 * HOUR
 
 /**
  * Current date and time as of when the webpage is loaded
@@ -8,9 +11,10 @@ const DAY = 86400000 // in milliseconds
 export const now = new Date()
 
 /**
- * Today’s local date as number of days since Unix epoch
+ * Today’s local date as number of days since Unix
+ * @note Each puzzle reveals at 05:00 AM (local time)
  */
-export const today = Math.floor((now.getTime() + now.getTimezoneOffset()) / DAY)
+export const today = Math.floor((now.getTime() - now.getTimezoneOffset() * MINUTE - 5 * HOUR) / DAY)
 
 /**
  * Creates an array of a specified length, populated using a provided function.
