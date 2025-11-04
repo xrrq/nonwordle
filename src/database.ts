@@ -1,4 +1,4 @@
-import { setDialogShown } from "./components/HowToPlay.tsx"
+import { setDialogShown } from "./utils.ts"
 import { today } from "./utils.ts"
 
 // constants for IndexedDB
@@ -39,16 +39,14 @@ idbOpenRequest.onupgradeneeded = function () {
 const db = await resolveIDBRequest(idbOpenRequest)
 
 // load the saved board for today
-const store = db.transaction(DB_STORE_NAME, "readonly").objectStore(DB_STORE_NAME)
-export const savedBoard = await resolveIDBRequest(store.get(today))
+const store = () => db.transaction(DB_STORE_NAME, "readwrite").objectStore(DB_STORE_NAME)
+export const savedBoard = await resolveIDBRequest(store().get(today))
 
 /**
  * Update the database with the given board state
  * @param board the board state to save which is a string of guessed words concatenated with newlines
  */
 export function updateDatabase(board: string) {
-	db.transaction(DB_STORE_NAME, "readwrite")
-		.objectStore(DB_STORE_NAME)
-		.put(board, today)
+	store().put(board, today)
 	// no await to avoid blocking
 }

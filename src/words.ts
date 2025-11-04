@@ -8,7 +8,6 @@ export const acceptableWords = new Set<string>()
 let temporaryAnswer: string | undefined
 
 // populate the word list and determine today’s answer
-// use a block statement to scope variables
 {
 	// derived from today’s date
 	const INITIAL_STATE = BigInt(today)
@@ -29,7 +28,7 @@ let temporaryAnswer: string | undefined
 	 * @see https://github.com/imneme/pcg-c-basic/blob/405c6e3/pcg_basic.c#L60-L67
 	 */
 	const random = (): number => {
-		state = (state * 6364136223846793005n + (inc | 1n)) & MASK_UINT64
+		state = (state * 0x5851f42d4c957f2dn + (inc | 1n)) & MASK_UINT64
 
 		const xorshifted = ((state >> 18n) ^ state) >> 27n & MASK_UINT32
 		const rot = state >> 59n
@@ -41,6 +40,7 @@ let temporaryAnswer: string | undefined
 	random()
 	state += INITIAL_STATE
 
+	// fetch the compressed word list
 	const response = await fetch("words.dat")
 
 	if (!response.ok) {
@@ -58,7 +58,7 @@ let temporaryAnswer: string | undefined
 	// for compressing the word list, see ../scripts/compress.py
 
 	for (const char of data) {
-		if (char <= 0b1111) {
+		if (char < 0b1111 + 1) {
 			// control character
 			// upper 4 bits = unused
 			// middle 1 bit = type
@@ -71,9 +71,9 @@ let temporaryAnswer: string | undefined
 			// number of characters to remove from end of the last word
 			const breakouts = char & 0b0111
 
-			if (type === 0) {
+			if (!type) {
 				acceptableWords.add(context)
-			} else if (type === 1) {
+			} else {
 				if (currentAnswerIndex === chosenAnswerIndex) {
 					temporaryAnswer = context
 				}
@@ -81,7 +81,7 @@ let temporaryAnswer: string | undefined
 				currentAnswerIndex += 1
 			}
 
-			if (breakouts >= 1) {
+			if (breakouts) {
 				context = context.slice(0, -breakouts)
 			}
 		} else {

@@ -1,6 +1,6 @@
 import { type Component } from "solid-js"
 
-import { setDialogShown } from "./HowToPlay.tsx"
+import { setDialogShown } from "../utils.ts"
 import { Icon } from "./Icon.tsx"
 import { share } from "../share.ts"
 

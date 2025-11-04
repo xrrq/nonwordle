@@ -1,13 +1,11 @@
-import { type Component, createSignal, type JSX } from "solid-js"
+import { type Component, type JSX } from "solid-js"
 import { cx } from "classix"
 
+import { isDialogShown, setDialogShown } from "../utils.ts"
 import * as i18n from "../i18n.ts"
 import { Icon } from "./Icon.tsx"
 import { TileStyle } from "./GameBoard.tsx"
 import { ABSENT, CORRECT, PRESENT } from "../game.ts"
-
-// signal for whether the dialog has been shown
-export const [isDialogShown, setDialogShown] = createSignal(false)
 
 const dialogInnerStyle =
 	":uno: w-full max-w-lg max-h-svh bg-white/100 dark:bg-stone-950/100 p-8 relative [box-shadow:0_0.25rem_1.5rem_#0004] dark:[box-shadow:0_0.25rem_1.5rem_#fff6] rounded-lg overflow-y-scroll [overscroll-behavior:contain]"

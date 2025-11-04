@@ -1,7 +1,7 @@
 import { type Component } from "solid-js"
 import { cx } from "classix"
 
-import { ABSENT, COLUMNS, CORRECT, getBoard, getTileStates, PRESENT, ROWS } from "../game.ts"
+import { ABSENT, COLUMNS, CORRECT, getBoard, getTiles, PRESENT, ROWS } from "../game.ts"
 import { createArrayOfLength } from "../utils.ts"
 
 /**
@@ -16,13 +16,13 @@ export const TileStyle = {
 } as const
 
 const Tile: Component<{ row: number; column: number }> = (props) => {
-	const getChar = () => getBoard()[props.row * (COLUMNS + 1) + props.column]
+	const getChar = () => getBoard()[props.row]?.[props.column]
 
 	const getTileStyle = () => {
-		const color = getTileStates()[props.row]?.[props.column]
-		const styleFromTable = TileStyle[color as symbol]
+		const color = getTiles()[props.row]?.[props.column]
+		const styleFromTable = color && TileStyle[color]
 
-		if (styleFromTable == null) {
+		if (!styleFromTable) {
 			return getChar() != null
 				? ":uno: b-(2 neutral-400/100) dark:b-neutral-500/100 text-neutral-900/100 dark:text-neutral-50/100"
 				: ":uno: b-(2 neutral-300/100) dark:b-neutral-700/100"
@@ -31,7 +31,7 @@ const Tile: Component<{ row: number; column: number }> = (props) => {
 		return cx(
 			styleFromTable,
 			// flip animation
-			`:uno: animate-[flip_1000ms_cubic-bezier(0.45,0,0.55,1)_both] [transform-style:preserve-3d] backface-hidden before:(absolute inset-0 grid place-content-center content-[attr(data-tile)] text-8 font-bold aspect-ratio-square b-(2 neutral-400/100) dark:b-neutral-500/100 bg-white/100 text-neutral-900/100 dark:(bg-stone-950/100 text-neutral-50/100) [rotate:x_180deg] backface-hidden [-webkit-text-stroke:transparent])`
+			`:uno: animate-[flip_1000ms_cubic-bezier(0.37,0,0.63,1)_both] [transform-style:preserve-3d] backface-hidden before:(absolute inset-0 grid place-content-center content-[attr(data-tile)] text-8 font-bold aspect-ratio-square b-(2 neutral-400/100) dark:b-neutral-500/100 bg-white/100 text-neutral-900/100 dark:(bg-stone-950/100 text-neutral-50/100) [rotate:x_180deg] backface-hidden [-webkit-text-stroke:transparent])`
 		)
 	}
 

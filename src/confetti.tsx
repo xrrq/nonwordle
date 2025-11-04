@@ -47,15 +47,10 @@ interface Fetti {
 	scalar: number
 }
 
-interface Options extends Partial<Pick<Fetti, "decay" | "scalar">> {
-	spread?: number
-	startVelocity?: number
-}
-
 const COLORS = ["26ccff", "a25afd", "ff5e7e", "88ff5a", "fcff42", "ffa62d", "ff36ff"]
 
 const GRAVITY = 3
-const TOTAL_TICKS = 200
+const TOTAL_TICKS = 300
 const OVAL_SCALAR = 0.6
 
 const fettis = new Set<Fetti>()
@@ -64,12 +59,9 @@ const fettis = new Set<Fetti>()
  * Fire confetti
  *
  * @param particleCount number of particles
- * @param spread spread angle
- * @param startVelocity starting velocity
- * @param decay decay rate
- * @param scalar size scalar
+ * @param options confetti options
  */
-function fire(particleCount: number, { spread = 45, startVelocity = 45, decay = 0.9, scalar = 1 }: Options): void {
+function fire(particleCount: number, spread = 45, startVelocity = 45, decay = 0.9, scalar = 1): void {
 	const x = canvas.width * 0.5
 	const y = canvas.height * 0.9
 	const radAngle = 90 * (Math.PI / 180)
@@ -100,7 +92,7 @@ function fire(particleCount: number, { spread = 45, startVelocity = 45, decay = 
 /**
  * Resize canvas to fit the screen
  */
-function resize() {
+function resize(): void {
 	const rect = canvas.getBoundingClientRect()
 	canvas.width = rect.width
 	canvas.height = rect.height
@@ -125,28 +117,11 @@ export async function confetti(): Promise<void> {
 
 	resize()
 
-	fire(200 * 0.25, {
-		spread: 26,
-		startVelocity: 55
-	})
-	fire(200 * 0.2, {
-		spread: 60
-	})
-	fire(200 * 0.35, {
-		spread: 100,
-		decay: 0.91,
-		scalar: 0.8
-	})
-	fire(200 * 0.1, {
-		spread: 120,
-		startVelocity: 25,
-		decay: 0.92,
-		scalar: 1.2
-	})
-	fire(200 * 0.1, {
-		spread: 120,
-		startVelocity: 45
-	})
+	fire(200 * 0.25, 26, 55)
+	fire(200 * 0.2, 60)
+	fire(200 * 0.35, 100, 45, 0.91, 0.8)
+	fire(200 * 0.1, 120, 25, 0.92, 1.2)
+	fire(200 * 0.1, 120, 45)
 
 	const context = canvas.getContext("2d")!
 
@@ -212,7 +187,7 @@ export async function confetti(): Promise<void> {
 			}
 		}
 
-		if (fettis.size > 0) {
+		if (fettis.size) {
 			lastFrameTime = time
 			frame = requestAnimationFrame(callback)
 		} else {

@@ -1,11 +1,13 @@
 import { type Component } from "solid-js"
 import { cx } from "classix"
 
-import { addCharacterToBoard, backspace, enter, getKeyboardColors, hasGameEnded } from "../game.ts"
+import { addCharacterToBoard, backspace, enter, getCharMap, getGameState } from "../game.ts"
 import { TileStyle } from "./GameBoard.tsx"
 import { Icon } from "./Icon.tsx"
 
-// QWERTY keyboard layout with Enter and Backspace represented as + and - so that it would be smaller when minified
+/**
+ * @note Enter and Backspace represented as `+` and `-` respectively
+ */
 const QWERTY = "QWERTYUIOPASDFGHJKL+ZXCVBNM-"
 
 const keyStyle = ":uno: rounded-1"
@@ -15,9 +17,9 @@ const keyDefaultStyle = ":uno: text-neutral-950/100 bg-neutral-300/100 dark:(tex
 
 const InputKey: Component<{ key: string }> = (props) => {
 	const getKeyStyle = () => {
-		const color = getKeyboardColors()[props.key]
+		const color = getCharMap()[props.key]
 
-		return TileStyle[color as symbol] ?? keyDefaultStyle
+		return (color && TileStyle[color]) || keyDefaultStyle
 	}
 
 	return (
@@ -30,7 +32,7 @@ const InputKey: Component<{ key: string }> = (props) => {
 				props.key === "A" && "grid-col-start-2"
 			)}
 			onClick={() => addCharacterToBoard(props.key)}
-			disabled={hasGameEnded()}
+			disabled={!!getGameState()}
 		>
 			<div class={keyStyleInner}>
 				{props.key}
@@ -46,7 +48,7 @@ const EnterKey: Component = () => (
 		type="button"
 		class={cx(keyStyle, oneAndHalf, keyDefaultStyle)}
 		onClick={enter}
-		disabled={hasGameEnded()}
+		disabled={!!getGameState()}
 	>
 		<div class={cx(keyStyleInner, ":uno: text-3.5 uppercase p-2")}>
 			Enter
@@ -60,7 +62,7 @@ const BackSpaceKey: Component = () => (
 		aria-label="Backspace"
 		class={cx(keyStyle, oneAndHalf, keyDefaultStyle)}
 		onClick={backspace}
-		disabled={hasGameEnded()}
+		disabled={!!getGameState()}
 	>
 		<div class={keyStyleInner}>
 			<Icon>
