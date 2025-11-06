@@ -11,10 +11,12 @@ import { confetti } from "./confetti.tsx"
 export const ROWS = 7
 export const COLUMNS = 5
 
+const SymbolConstructor = Symbol
+
 // tile states
-export const CORRECT = Symbol()
-export const PRESENT = Symbol()
-export const ABSENT = Symbol()
+export const CORRECT = SymbolConstructor()
+export const PRESENT = SymbolConstructor()
+export const ABSENT = SymbolConstructor()
 
 type CharState = typeof CORRECT | typeof PRESENT | typeof ABSENT
 
@@ -62,32 +64,22 @@ async function guess(guess: string, guessRowIndex: number, fast = false): Promis
 
 		if (guessedLetter === correctLetter) {
 			tileStateArray[index] = CORRECT
-			delete answerArray[index]
+			delete answerArray[index] // prevent double counting
 
 			keyboardColors[correctLetter] = CORRECT
 		}
 	}
 
-	// second pass: present letters
-	for (let index = 0; index < COLUMNS; ++index) {
-		const guessedLetter = guess[index]!
-		const answerLetterIndex = answerArray.indexOf(guessedLetter)
-
-		if (tileStateArray[index] == null && answerLetterIndex > -1) {
-			tileStateArray[index] = PRESENT
-			delete answerArray[answerLetterIndex]
-
-			keyboardColors[guessedLetter] ??= PRESENT
-		}
-	}
-
-	// third pass: absent letters
+	// second pass: present letters & absent letters
 	for (let index = 0; index < COLUMNS; ++index) {
 		if (tileStateArray[index] == null) {
-			tileStateArray[index] = ABSENT
-
 			const guessedLetter = guess[index]!
-			keyboardColors[guessedLetter] ??= ABSENT
+			const answerLetterIndex = answerArray.indexOf(guessedLetter)
+
+			const state = answerLetterIndex > -1 ? PRESENT : ABSENT
+
+			tileStateArray[index] = state
+			keyboardColors[guessedLetter] ??= state
 		}
 	}
 

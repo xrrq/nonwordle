@@ -1,4 +1,5 @@
 import { type Component } from "solid-js"
+import { abs, cos, floor, media, min, PI, random, sin } from "./utils.ts"
 
 /**
  * Function to resolve when the canvas is ready
@@ -64,8 +65,8 @@ const fettis = new Set<Fetti>()
 function fire(particleCount: number, spread = 45, startVelocity = 45, decay = 0.9, scalar = 1): void {
 	const x = canvas.width * 0.5
 	const y = canvas.height * 0.9
-	const radAngle = 90 * (Math.PI / 180)
-	const radSpread = spread * (Math.PI / 180)
+	const radAngle = 90 * (PI / 180)
+	const radSpread = spread * (PI / 180)
 
 	startVelocity *= 1.75
 
@@ -73,13 +74,13 @@ function fire(particleCount: number, spread = 45, startVelocity = 45, decay = 0.
 		fettis.add({
 			x,
 			y,
-			wobble: Math.random() * 10,
-			wobbleSpeed: Math.min(0.11, Math.random() * 0.1 + 0.05),
-			velocity: (startVelocity * 0.5) + (Math.random() * startVelocity),
-			angle2D: -radAngle + ((0.5 * radSpread) - (Math.random() * radSpread)),
-			tiltAngle: (Math.random() * (0.75 - 0.25) + 0.25) * Math.PI,
-			color: COLORS[Math.floor(Math.random() * COLORS.length)]!,
-			shape: Math.floor(Math.random() * 2),
+			wobble: random() * 10,
+			wobbleSpeed: min(0.11, random() * 0.1 + 0.05),
+			velocity: (startVelocity * 0.5) + (random() * startVelocity),
+			angle2D: -radAngle + ((0.5 * radSpread) - (random() * radSpread)),
+			tiltAngle: (random() * (0.75 - 0.25) + 0.25) * PI,
+			color: COLORS[floor(random() * COLORS.length)]!,
+			shape: floor(random() * 2),
 			tick: 0,
 			decay,
 			wobbleX: 0,
@@ -103,12 +104,14 @@ let frame: ReturnType<typeof requestAnimationFrame> | null = null
 const MILLISECONDS_PER_FRAME = 1000 / 60 // 60 fps
 let lastFrameTime: DOMHighResTimeStamp
 
+const raf = requestAnimationFrame
+
 /**
  * Trigger confetti animation
  */
 export async function confetti(): Promise<void> {
 	// respect prefers-reduced-motion setting
-	if (matchMedia("(prefers-reduced-motion)").matches) {
+	if (media("(prefers-reduced-motion)")) {
 		return
 	}
 
@@ -133,28 +136,29 @@ export async function confetti(): Promise<void> {
 
 		const Δt = time - (lastFrameTime ??= time)
 		const progressFactor = Δt / MILLISECONDS_PER_FRAME
-		const pf = Math.min(progressFactor, 4)
+		const pf = min(progressFactor, 4)
 
 		for (const fetti of fettis) {
-			fetti.x += Math.cos(fetti.angle2D) * fetti.velocity * pf
-			fetti.y += (Math.sin(fetti.angle2D) * fetti.velocity + GRAVITY) * pf
+			const velocity = fetti.velocity
+			const x = (fetti.x += cos(fetti.angle2D) * velocity * pf)
+			const y = (fetti.y += (sin(fetti.angle2D) * velocity + GRAVITY) * pf)
 			fetti.velocity *= fetti.decay ** pf
 
-			fetti.wobble += fetti.wobbleSpeed * pf
-			fetti.wobbleX = fetti.x + ((10 * fetti.scalar) * Math.cos(fetti.wobble))
-			fetti.wobbleY = fetti.y + ((10 * fetti.scalar) * Math.sin(fetti.wobble))
+			const wobble = (fetti.wobble += fetti.wobbleSpeed * pf)
+			const wobbleX = (fetti.wobbleX = x + ((10 * fetti.scalar) * cos(wobble)))
+			const wobbleY = (fetti.wobbleY = y + ((10 * fetti.scalar) * sin(wobble)))
 
-			fetti.tiltAngle += 0.1 * pf
-			const tiltSin = Math.sin(fetti.tiltAngle)
-			const tiltCos = Math.cos(fetti.tiltAngle)
-			const random = Math.random() + 2
+			const tiltAngle = (fetti.tiltAngle += 0.1 * pf)
+			const tiltSin = sin(tiltAngle)
+			const tiltCos = cos(tiltAngle)
+			const fettiRandom = random() + 2
+
+			const x1 = x + (fettiRandom * tiltCos)
+			const y1 = y + (fettiRandom * tiltSin)
+			const x2 = wobbleX + (fettiRandom * tiltCos)
+			const y2 = wobbleY + (fettiRandom * tiltSin)
 
 			const progress = (fetti.tick += pf) / TOTAL_TICKS
-
-			const x1 = fetti.x + (random * tiltCos)
-			const y1 = fetti.y + (random * tiltSin)
-			const x2 = fetti.wobbleX + (random * tiltCos)
-			const y2 = fetti.wobbleY + (random * tiltSin)
 
 			context.fillStyle = `rgb(from #${fetti.color} r g b/${1 - progress})`
 
@@ -165,18 +169,18 @@ export async function confetti(): Promise<void> {
 				context.ellipse(
 					fetti.x,
 					fetti.y,
-					Math.abs(x2 - x1) * OVAL_SCALAR,
-					Math.abs(y2 - y1) * OVAL_SCALAR,
-					Math.PI / 10 * fetti.wobble,
+					abs(x2 - x1) * OVAL_SCALAR,
+					abs(y2 - y1) * OVAL_SCALAR,
+					PI / 10 * fetti.wobble,
 					0,
-					2 * Math.PI
+					2 * PI
 				)
 			} else {
 				// square
-				context.moveTo(Math.floor(fetti.x), Math.floor(fetti.y))
-				context.lineTo(Math.floor(fetti.wobbleX), Math.floor(y1))
-				context.lineTo(Math.floor(x2), Math.floor(y2))
-				context.lineTo(Math.floor(x1), Math.floor(fetti.wobbleY))
+				context.moveTo(floor(fetti.x), floor(fetti.y))
+				context.lineTo(floor(fetti.wobbleX), floor(y1))
+				context.lineTo(floor(x2), floor(y2))
+				context.lineTo(floor(x1), floor(fetti.wobbleY))
 			}
 
 			context.closePath()
@@ -189,13 +193,13 @@ export async function confetti(): Promise<void> {
 
 		if (fettis.size) {
 			lastFrameTime = time
-			frame = requestAnimationFrame(callback)
+			frame = raf(callback)
 		} else {
 			frame = null
 		}
 	}
 
 	if (frame == null) {
-		frame = requestAnimationFrame(callback)
+		frame = raf(callback)
 	}
 }

@@ -1,4 +1,4 @@
-import { today } from "./utils.ts"
+import { DAY, media, today } from "./utils.ts"
 import { ABSENT, CORRECT, getBoard, getGameState, getTiles, PRESENT, ROWS } from "./game.ts"
 import { toast } from "./components/Toast.tsx"
 import * as i18n from "./i18n.ts"
@@ -16,7 +16,7 @@ const pad = (num: number, length = 2) => (num + "").padStart(length, "0")
  */
 export async function share(): Promise<void> {
 	// today’s date
-	const todayDate = new Date(today * 86400000)
+	const todayDate = new Date(today * DAY)
 	const YYYY = pad(todayDate.getFullYear(), 4)
 	const MM = pad(todayDate.getMonth() + 1)
 	const DD = pad(todayDate.getDate())
@@ -28,8 +28,8 @@ export async function share(): Promise<void> {
 
 	// build the board text
 	// use different emojis for high contrast mode and dark mode
-	const highContrast = matchMedia("(prefers-contrast:more)").matches
-	const darkMode = matchMedia("(prefers-color-scheme:dark)").matches
+	const highContrast = media("(prefers-contrast:more)")
+	const darkMode = media("(prefers-color-scheme:dark)")
 	const boardText = getTiles().map((row) =>
 		row.map((state) =>
 			state === CORRECT
@@ -48,7 +48,7 @@ export async function share(): Promise<void> {
 ${boardText}`
 
 	// on mobile, use the Web Share API if available
-	if (matchMedia("(pointer:coarse)").matches) {
+	if (media("(pointer:coarse)")) {
 		const shareData = { text }
 
 		if (navigator.canShare?.(shareData)) {

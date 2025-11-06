@@ -2,10 +2,20 @@
 
 import { createSignal } from "solid-js"
 
+// re-exporting math functions so that minifiers can optimize better
+export const { abs, cos, floor, min, PI, random, sin } = Math
+
+/**
+ * Evaluates a media query
+ * @param query the media query
+ * @returns whether the media query matches
+ */
+export const media = (query: string) => matchMedia(query).matches
+
 const SECOND = 1000 // in milliseconds
 const MINUTE = 60 * SECOND
 const HOUR = 60 * MINUTE
-const DAY = 24 * HOUR
+export const DAY = 24 * HOUR
 
 /**
  * Current date and time as of when the webpage is loaded
@@ -16,7 +26,7 @@ const now = new Date()
  * Today’s local date as number of days since Unix
  * @note Each puzzle reveals at 05:00 AM (local time)
  */
-export const today = Math.floor((now.getTime() - now.getTimezoneOffset() * MINUTE - 5 * HOUR) / DAY)
+export const today = floor((now.getTime() - now.getTimezoneOffset() * MINUTE - 5 * HOUR) / DAY)
 
 /**
  * Creates an array of a specified length, populated using a provided function.
