@@ -8,7 +8,7 @@ import { TileStyle } from "./GameBoard.tsx"
 import { ABSENT, CORRECT, PRESENT } from "../game.ts"
 
 const dialogInnerStyle =
-	":uno: w-full max-w-lg max-h-svh bg-white/100 dark:bg-stone-950/100 p-8 relative [box-shadow:0_0.25rem_1.5rem_#0004] dark:[box-shadow:0_0.25rem_1.5rem_#fff6] rounded-lg overflow-y-scroll [overscroll-behavior:contain]"
+	":uno: w-full max-w-lg max-h-svh bg-white/100 dark:bg-stone-950/100 p-8 relative [box-shadow:0_0.25rem_1.5rem_#0004] dark:[box-shadow:0_0.25rem_1.5rem_#fff6] rounded-lg overflow-y-scroll [overscroll-behavior:contain] [scrollbar-width:none]"
 
 const Link: Component<{ href: string; children: JSX.Element }> = (props) => (
 	<a

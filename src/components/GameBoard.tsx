@@ -31,7 +31,7 @@ const Tile: Component<{ row: number; column: number }> = (props) => {
 		return cx(
 			styleFromTable,
 			// flip animation
-			`:uno: media-motion_ok:(animate-[flip_1000ms_cubic-bezier(0.37,0,0.63,1)_both] [transform-style:preserve-3d] backface-hidden before:(absolute inset-0 grid place-content-center content-[attr(data-tile)] text-8 font-bold aspect-ratio-square b-(2 neutral-400/100) dark:b-neutral-500/100 bg-white/100 text-neutral-900/100 dark:(bg-stone-950/100 text-neutral-50/100) [rotate:x_180deg] backface-hidden [-webkit-text-stroke:transparent]))`
+			`:uno: media-motion_ok:(animate-[flip_1000ms_cubic-bezier(0.37,0,0.63,1)_both] [transform-style:preserve-3d] backface-hidden before:(absolute inset-0 grid place-content-center content-[attr(data-tile)] text-8 font-bold aspect-ratio-square bg-white/100 text-neutral-900/100 b-(2 neutral-400/100) [rotate:x_180deg] backface-hidden [-webkit-text-stroke:transparent])) before:dark:media-motion_ok:(bg-stone-950/100 text-neutral-50/100 b-neutral-500/100)`
 		)
 	}
 
@@ -49,7 +49,7 @@ const Tile: Component<{ row: number; column: number }> = (props) => {
 }
 
 export const GameBoard: Component = () => (
-	<div class=":uno: max-w-[min(24rem,calc(100svw_-_1rem))] max-h-[min(33.6rem,calc(140svw_-_1.4rem))] grid-(~ cols-5 rows-7 gap-1.5) m-auto aspect-ratio-5/7 flex-1">
+	<div class=":uno: max-w-[min(24rem,calc(85svw_-_1rem))] max-h-[min(33.6rem,calc(119svw_-_1.4rem))] grid-(~ cols-5 rows-7 gap-1.5) m-auto aspect-ratio-5/7 flex-1">
 		{
 			// deno-fmt-ignore
 			createArrayOfLength(ROWS, (_, row) => createArrayOfLength(COLUMNS, (_, column) => <Tile row={row} column={column} />)).flat()
