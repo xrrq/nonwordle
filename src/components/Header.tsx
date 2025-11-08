@@ -5,7 +5,7 @@ import { Icon } from "./Icon.tsx"
 import { share } from "../share.ts"
 
 const iconButton =
-	":uno: flex justify-center items-center h-full aspect-ratio-square hover:bg-neutral-200/100 dark:hover:bg-neutral-700/100 transition-background-color"
+	":uno: flex justify-center items-center h-full aspect-ratio-square hover:bg-neutral-200/100 dark:hover:bg-neutral-700/100 media-motion_ok:transition-background-color"
 
 const GuideButton: Component = () => (
 	<button

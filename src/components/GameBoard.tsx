@@ -31,7 +31,7 @@ const Tile: Component<{ row: number; column: number }> = (props) => {
 		return cx(
 			styleFromTable,
 			// flip animation
-			`:uno: animate-[flip_1000ms_cubic-bezier(0.37,0,0.63,1)_both] [transform-style:preserve-3d] backface-hidden before:(absolute inset-0 grid place-content-center content-[attr(data-tile)] text-8 font-bold aspect-ratio-square b-(2 neutral-400/100) dark:b-neutral-500/100 bg-white/100 text-neutral-900/100 dark:(bg-stone-950/100 text-neutral-50/100) [rotate:x_180deg] backface-hidden [-webkit-text-stroke:transparent])`
+			`:uno: media-motion_ok:(animate-[flip_1000ms_cubic-bezier(0.37,0,0.63,1)_both] [transform-style:preserve-3d] backface-hidden before:(absolute inset-0 grid place-content-center content-[attr(data-tile)] text-8 font-bold aspect-ratio-square b-(2 neutral-400/100) dark:b-neutral-500/100 bg-white/100 text-neutral-900/100 dark:(bg-stone-950/100 text-neutral-50/100) [rotate:x_180deg] backface-hidden [-webkit-text-stroke:transparent]))`
 		)
 	}
 

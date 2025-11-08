@@ -10,9 +10,9 @@ import { Icon } from "./Icon.tsx"
  */
 const QWERTY = "QWERTYUIOPASDFGHJKL+ZXCVBNM-"
 
-const keyStyle = ":uno: rounded-1"
+const keyStyle = ":uno: rounded-1 first:children:active:enabled:bg-neutral-950/25"
 const keyStyleInner =
-	":uno: h-full grid place-content-center font-bold rounded-1 active:bg-neutral-950/25 transition-background-color"
+	":uno: h-full grid place-content-center font-bold rounded-1 media-motion_ok:transition-background-color"
 const keyDefaultStyle = ":uno: text-neutral-950/100 bg-neutral-300/100 dark:(text-white/100 bg-neutral-500/100)"
 
 const InputKey: Component<{ key: string }> = (props) => {

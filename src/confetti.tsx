@@ -64,11 +64,9 @@ const fettis = new Set<Fetti>()
  */
 function fire(particleCount: number, spread = 45, startVelocity = 45, decay = 0.9, scalar = 1): void {
 	const x = canvas.width * 0.5
-	const y = canvas.height * 0.9
+	const y = canvas.height * 0.7
 	const radAngle = 90 * (PI / 180)
 	const radSpread = spread * (PI / 180)
-
-	startVelocity *= 1.75
 
 	for (let i = 0; i < particleCount; ++i) {
 		fettis.add({

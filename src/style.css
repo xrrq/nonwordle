@@ -47,47 +47,11 @@ a {
 	text-decoration: underline;
 }
 
-@keyframes shake {
-	10%, 90% {
-		transform: translateX(-0.0625rem);
-	}
-	20%, 80% {
-		transform: translateX(0.125rem);
-	}
-	30%, 50%, 70% {
-		transform: translateX(-0.25rem);
-	}
-	40%, 60% {
-		transform: translateX(0.25rem);
-	}
-}
-
 @keyframes flip {
 	from {
 		rotate: x -180deg;
 	}
 	to {
 		rotate: x 0deg;
-	}
-}
-
-@keyframes bounce {
-	0%, 20% {
-		transform: translateY(0);
-	}
-	40% {
-		transform: translateY(-2rem);
-	}
-	50% {
-		transform: translateY(0.25rem);
-	}
-	60% {
-		transform: translateY(-1rem);
-	}
-	80% {
-		transform: translateY(0.125rem);
-	}
-	100% {
-		transform: translateY(0);
 	}
 }
