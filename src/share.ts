@@ -1,5 +1,5 @@
 import { DAY, media, today } from "./utils.ts"
-import { ABSENT, CORRECT, getBoard, getGameState, getTiles, PRESENT, ROWS } from "./game.ts"
+import { ABSENT, CORRECT, getGameState, getTiles, PRESENT, ROWS } from "./game.ts"
 import { toast } from "./components/Toast.tsx"
 import * as i18n from "./i18n.ts"
 
@@ -22,15 +22,18 @@ export async function share(): Promise<void> {
 	const DD = pad(todayDate.getDate())
 
 	const gameState = getGameState()
+	const tiles = getTiles()
 
 	// solved in how many tries
-	const solvedIn = gameState ? (gameState > 1 ? "X" : getBoard().length) : "-"
+	const solvedIn = gameState
+		? (gameState > 1 ? "X" : tiles.filter((row) => !row.some((tile) => tile == null)).length)
+		: "-"
 
 	// build the board text
 	// use different emojis for high contrast mode and dark mode
 	const highContrast = media("(prefers-contrast:more)")
 	const darkMode = media("(prefers-color-scheme:dark)")
-	const boardText = getTiles().map((row) =>
+	const boardText = tiles.map((row) =>
 		row.map((state) =>
 			state === CORRECT
 				? (highContrast ? "🟧" : "🟩")
