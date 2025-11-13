@@ -52,6 +52,7 @@
 		"trailingCommas": "never",
 		"exclude": [
 			"dist",
+			"static",
 			"index.html"
 		]
 	}
