@@ -53,7 +53,7 @@ export const [getGameState, setGameState] = createSignal<0 | 1 | 2>(0)
  * @param fast whether to use fast mode (less delays)
  */
 async function guess(guess: string, guessRowIndex: number, fast = false): Promise<void> {
-	const answerArray = answer.split("")
+	const answerArray: (string | null)[] = answer.split("")
 	const tileStateArray = createArrayOfLength<CharState>(COLUMNS)
 	const keyboardColors = {} as Record<string, CharState>
 
@@ -64,7 +64,7 @@ async function guess(guess: string, guessRowIndex: number, fast = false): Promis
 
 		if (guessedLetter === correctLetter) {
 			tileStateArray[index] = CORRECT
-			delete answerArray[index] // prevent double counting
+			answerArray[index] = null // prevent double counting
 
 			keyboardColors[correctLetter] = CORRECT
 		}
@@ -76,7 +76,7 @@ async function guess(guess: string, guessRowIndex: number, fast = false): Promis
 			const guessedLetter = guess[index]!
 			const answerLetterIndex = answerArray.indexOf(guessedLetter)
 
-			const state = answerLetterIndex > -1 ? PRESENT : ABSENT
+			const state = answerLetterIndex > -1 ? ((answerArray[answerLetterIndex] = null), PRESENT) : ABSENT
 
 			tileStateArray[index] = state
 			keyboardColors[guessedLetter] ??= state
